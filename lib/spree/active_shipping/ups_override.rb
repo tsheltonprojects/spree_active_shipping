@@ -156,13 +156,47 @@ module Spree
             end
           end
 
+          def oauth_access_token
+            if @access_token
+              return @access_token
+            end
+            url = @options[:test] ? ::ActiveShipping::UPS::TEST_URL : ::ActiveShipping::UPS::LIVE_URL
+
+            #TODO change the options in spree settings to say client id and secret isntea dof login
+            client_id = @options[:login]
+            client_secret = @options[:password]
+
+            base_auth = Base64.encode64( client_id + ":"  + client_secret ).strip.gsub("\n","")
+            headers = {
+              "Authorization" => "Basic " + base_auth,
+            }
+            response = raw_ssl_request(:post, url + "/security/v1/oauth/token", "grant_type=client_credentials", headers );
+            data = JSON.parse( response.body )
+            @access_token = data["access_token"]
+          end
+
+
+          def commit(action, request, test = false)
+            headers = {
+              "Authorization" => "Bearer " + oauth_access_token,
+            }
+            if action == :rates
+              url = "api/ups.app/xml/Rate"
+            else
+              url = ::ActiveShipping::UPS::RESOURCES[action]
+            end
+            response = ssl_post("#{test ? ::ActiveShipping::UPS::TEST_URL : ::ActiveShipping::UPS::LIVE_URL}/#{url}", request, headers)
+            response.encode('utf-8', 'iso-8859-1')
+          end
+
           def find_rates(origin, destination, packages, options={})
             origin, destination = upsified_location(origin), upsified_location(destination)
             options = @options.merge(options)
             packages = Array(packages)
-            access_request = build_access_request
+            #access_request = build_access_request
             rate_request = build_rate_request(origin, destination, packages, options)
-            response = commit(:rates, save_request(access_request + rate_request), (options[:test] || false))
+            #response = commit(:rates, save_request(access_request + rate_request), (options[:test] || false))
+            response = commit(:rates, save_request(rate_request), (options[:test] || false))
             parse_rate_response(origin, destination, packages, response, options)
           end
 
