@@ -1,8 +1,11 @@
 class Spree::ActiveShippingConfiguration < Spree::Preferences::Configuration
 
-  preference :ups_login, :string, default: "aunt_judy"
-  preference :ups_password, :string, default: "secret"
-  preference :ups_key, :string, default: "developer_key"
+  #preference :ups_login, :string, default: "aunt_judy"
+  #preference :ups_password, :string, default: "secret"
+  #preference :ups_key, :string, default: "developer_key"
+  preference :ups_client_id, :string, default: ""
+  preference :ups_client_secret, :string, default: ""
+
   preference :shipper_number, :string, default: nil
 
   preference :fedex_login, :string, default: "meter_no"

@@ -22,8 +22,8 @@ module Spree
           is_package_shippable?(package)
 
           !compute(package).nil?
-        rescue Spree::ShippingError
-          false
+        #rescue Spree::ShippingError
+        #  false
         end
 
         def compute_package(package)
@@ -224,7 +224,11 @@ module Spree
                 package_weight = content_weight
               end
             end
-            packages << ::ActiveShipping::Package.new(package_weight, dimensions, units: units) if package_weight > 0
+            if package_weight > 0
+              packages << ::ActiveShipping::Package.new(package_weight, dimensions, units: units) if package_weight > 0
+            else
+              raise Spree::ShippingError.new("#{I18n.t(:shipping_error)}: The package must be more than 0 weight.")  
+            end
           end
 
           item_specific_packages.each do |package|
@@ -267,14 +271,14 @@ module Spree
         end
 
         def retrieve_rates_from_cache package, origin, destination
-          Rails.cache.fetch(cache_key(package)) do
+          #Rails.cache.fetch(cache_key(package)) do
             shipment_packages = packages(package)
             if shipment_packages.empty?
               {}
             else
               retrieve_rates(origin, destination, shipment_packages)
             end
-          end
+          #end
         end
       end
     end

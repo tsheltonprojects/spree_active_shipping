@@ -6,9 +6,8 @@ module Spree
       class Base < Spree::Calculator::Shipping::ActiveShipping::Base
         def carrier
           carrier_details = {
-            login: Spree::ActiveShipping::Config[:ups_login],
-            password: Spree::ActiveShipping::Config[:ups_password],
-            key: Spree::ActiveShipping::Config[:ups_key],
+            client_id: Spree::ActiveShipping::Config[:ups_client_id],
+            client_secret: Spree::ActiveShipping::Config[:ups_client_secret],
             test: Spree::ActiveShipping::Config[:test_mode]
           }
 

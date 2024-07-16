@@ -4,6 +4,9 @@ module Spree
       def self.included(base)
 
         base.class_eval do
+          def requirements
+            [:client_id, :client_secret]
+          end
 
           def build_rate_request(origin, destination, packages, options = {})
             xml_builder = Nokogiri::XML::Builder.new do |xml|
@@ -163,8 +166,8 @@ module Spree
             url = @options[:test] ? ::ActiveShipping::UPS::TEST_URL : ::ActiveShipping::UPS::LIVE_URL
 
             #TODO change the options in spree settings to say client id and secret isntea dof login
-            client_id = @options[:login]
-            client_secret = @options[:password]
+            client_id = @options[:client_id]
+            client_secret = @options[:client_secret]
 
             base_auth = Base64.encode64( client_id + ":"  + client_secret ).strip.gsub("\n","")
             headers = {
